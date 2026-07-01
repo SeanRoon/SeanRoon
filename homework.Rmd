@@ -1,9 +1,11 @@
 ---
-title: "R Object Values and Lengths"
+title: "R Homework"
 output: html_document
 ---
 
-## 1) Show the value of each object and use R command to measure the length of them.
+## Question 1: Object Values and Lengths
+
+#### 1) Show the value of each object and use R command to measure the length of them.
 
 ```{r}
 obj1 <- seq(20,2,-2)
@@ -22,4 +24,181 @@ length(obj3)
 
 obj4
 length(obj4)
+```
+
+#### 2) What values are returned by the following commands?
+
+```{r, error=TRUE}
+obj1^(-1)
+obj1[-1]
+obj2[4:2]
+obj1 + obj2
+obj1 * obj3
+obj2 + obj3
+obj1 + obj4
+sum(obj2)
+sum(obj3)
+```
+
+Notes:
+
+- `obj1^(-1)`: element-wise reciprocal of obj1, i.e. `1/obj1`.
+- `obj1[-1]`: drops the first element of obj1, returning the remaining 9 values.
+- `obj2[4:2]`: returns obj2's 4th, 3rd, 2nd elements in that order, i.e. `7 5 3`.
+- `obj1 + obj2`: obj2 (length 5) is recycled to length 10 to match obj1, then added element-wise (recycles cleanly since 10 is a multiple of 5, so no warning).
+- `obj1 * obj3`: obj3 (logical, length 5) is coerced to numeric (TRUE=1, FALSE=0) and recycled to length 10, then multiplied element-wise.
+- `obj2 + obj3`: obj3 coerced to numeric (0/0/1/1/1) and added element-wise to obj2.
+- `obj1 + obj4`: obj4 is a list, not numeric, so this throws an error: `non-numeric argument to binary operator`.
+- `sum(obj2)`: 2+3+5+7+11 = 28.
+- `sum(obj3)`: logical TRUE/FALSE summed as 1/0 = 3.
+
+## Question 2: Vectors
+
+A user has typed the following commands into the console.
+
+```{r}
+a <- c(-1, 0)
+b <- c(TRUE, FALSE)
+c <- c("happy", "sad")
+```
+
+What do each of the following commands return? Pay attention to the type of the vector after concatenating two or more vectors.
+
+```{r}
+a+b
+a*b
+d <- c(a,b); d
+e <- c(a,c); e
+g <- c(b,c); g
+w <- c(a,b,c); w
+```
+
+Notes:
+
+- `a+b`: `b` is coerced to numeric (TRUE=1, FALSE=0), so `a+b = c(-1+1, 0+0) = c(0, 0)`.
+- `a*b`: `a*b = c(-1*1, 0*0) = c(-1, 0)`.
+- `d <- c(a,b)`: numeric + logical → coerced to numeric: `c(-1, 0, 1, 0)`.
+- `e <- c(a,c)`: numeric + character → coerced to character: `c("-1", "0", "happy", "sad")`.
+- `g <- c(b,c)`: logical + character → coerced to character: `c("TRUE", "FALSE", "happy", "sad")`.
+- `w <- c(a,b,c)`: numeric + logical + character → all coerced to character (the most general type): `c("-1", "0", "TRUE", "FALSE", "happy", "sad")`.
+
+## Question 3: Errors
+
+For each of the following assignment statements, describe the error (or note why it does not generate an error).
+
+```{r, eval=FALSE}
+result1 <- floor 10.3
+result2 <-- "Hello to you!"
+result3 == "Hello to you!"
+4result <- "Hello to you"
+result5 <- "Hello to you
+result6 <- date()
+```
+
+- `result1 <- floor 10.3`: **Syntax error.** `floor` is a function and requires parentheses around its argument (`floor(10.3)`). As written, R sees `floor` followed unexpectedly by the number `10.3` and reports "unexpected numeric constant."
+- `result2 <-- "Hello to you!"`: **Runs, but errors at evaluation.** R parses this as `result2 <- -"Hello to you!"` (assignment followed by unary minus). You cannot apply unary minus to a character string, so R throws: "invalid argument to unary operator."
+- `result3 == "Hello to you!"`: **Error, not an assignment.** `==` is the equality operator, not assignment, so this just tries to compare the (nonexistent) variable `result3` to a string. Since `result3` was never created, R reports "object 'result3' not found."
+- `4result <- "Hello to you"`: **Syntax error.** Variable names in R cannot start with a digit, so `4result` is not a valid identifier ("unexpected symbol").
+- `result5 <- "Hello to you`: **Syntax error.** The string is missing its closing quotation mark, so R reports an unterminated string constant / unexpected end of input.
+- `result6 <- date()`: **No error.** `date()` is a valid built-in function that returns the current date and time as a character string (e.g. `"Wed Jul 01 2026 ..."`), which is assigned to `result6` successfully.
+
+## Question 4: Matrices
+
+#### 1) Create two matrices as follows by writing code. Call them `M1` and `M2`, respectively.
+
+```{r}
+a <- 1:9
+M1 <- matrix(a,3,3)
+M1
+M2 <- matrix(a,3,3,byrow=TRUE)
+M2
+```
+
+#### 2) Extract the value at the intersection of the 2nd row and 2nd column of M1 using R
+
+```{r}
+M1[2,2]
+```
+
+#### 3) Extract the values in the 3rd row in M1 using R
+
+```{r}
+M1[3,]
+```
+
+#### 4) Extract the values in the 3rd column in M2 using R
+
+```{r}
+M2[,3]
+```
+
+## Question 5: Calculations
+
+#### 1) $log_{10}(1)+ln(1)$
+
+```{r}
+log10(1) + log(1)
+```
+
+#### 2) $sin(\pi/3)+cos(\pi/6)$
+
+```{r}
+sin(pi/3) + cos(pi/6)
+```
+
+#### 3) Round down the result of 2) to the nearest integer
+
+```{r}
+floor(sin(pi/3) + cos(pi/6))
+```
+
+#### 4) Round the result of 2) to four decimal places
+
+```{r}
+round(sin(pi/3) + cos(pi/6), 4)
+```
+
+#### 5) Calculate the remainder of $2024/3$ using R
+
+```{r}
+2024 %% 3
+```
+
+## Question 6: Data Frames
+
+#### 1) Create a data frame as follows:
+
+```{r}
+Name <- c("Jacob","James","Jeremy","Jimmy","John")
+Year <- c("1","2","1","4","3")
+GPA <- c(3.41, 3.53,3.32,3.67,4.00)
+Height <- c(1.78, 1.85, 1.72, 1.82, 1.68)
+Students <- data.frame(Name,Year,GPA, Height)
+Students
+```
+
+#### 2) Use the column name to extract the names of all students.
+
+```{r}
+Students$Name
+```
+
+#### 3) Select the information about James.
+
+```{r}
+Students[Students$Name == "James", ]
+```
+
+#### 4) List name(s) of students whose GPA is higher than 3.6.
+
+```{r}
+Students$Name[Students$GPA > 3.6]
+```
+
+#### 5) List the GPA of all freshmen and calculate the mean GPA.
+
+```{r}
+freshman_GPA <- Students$GPA[Students$Year == "1"]
+freshman_GPA
+mean(freshman_GPA)
 ```
