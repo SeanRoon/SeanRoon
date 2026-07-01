@@ -1,0 +1,25 @@
+---
+title: "R Object Values and Lengths"
+output: html_document
+---
+
+## 1) Show the value of each object and use R command to measure the length of them.
+
+```{r}
+obj1 <- seq(20,2,-2)
+obj2 <- c(2,3,5,7,11)
+obj3 <- obj2 >= 5
+obj4 <- list("Pizza","Pie","Cake")
+
+obj1
+length(obj1)
+
+obj2
+length(obj2)
+
+obj3
+length(obj3)
+
+obj4
+length(obj4)
+```
