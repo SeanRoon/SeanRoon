@@ -1,0 +1,208 @@
+---
+title: 'STAT 1261/2260: Principles of Data Science'
+subtitle: 'Homework 2'
+output:
+  html_document
+  #word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.height=3, fig.height=5)
+
+```
+
+
+### <span style="color:green"> The Stroke Data </span>
+According to the World Health Organization (WHO) stroke is the 2nd leading cause of death globally, responsible for approximately 11% of total deaths.
+
+This dataset is used to predict whether a patient is likely to get stroke based on the attributes like gender, age, various diseases, and smoking status. Each row in the data provides relevant information about the patient.
+
+#### Variables Information
+##### Features (predictors):
+1) `id`: unique identifier
+2) `gender`: "Male", "Female" or "Other"
+3) `age`: age of the patient
+4) `hypertension`: 0 if the patient doesn't have hypertension, 1 if the patient has hypertension
+5) `heart_disease`: 0 if the patient doesn't have any heart diseases, 1 if the patient has a heart disease
+6) `ever_married`: "No" or "Yes"
+7) `work_type`: "children", "Govt_jov", "Never_worked", "Private" or "Self-employed"
+8) `Residence_type`: "Rural" or "Urban"
+9) `avg_glucose_level`: average glucose level in blood
+10) `bmi`: body mass index
+11) `smoking_status`: "formerly smoked", "never smoked", "smokes" or "Unknown". "Unknown" means that the information is unavailable for this patient
+
+##### Target (response):
+12) `stroke`: 1 if the patient had a stroke or 0 if not
+
+```{r,message=FALSE}
+library(tidyverse)
+data <- read_csv('strokedata.csv')
+```
+
+#### Understanding the data
+
+```{r}
+glimpse(data)
+```
+
+Note that `bmi` is coded as a character variable. Let us convert it into a numeric variable.
+
+```{r}
+data$bmi <- as.numeric(data$bmi)
+```
+
+Don't panic. These NA values were converted from "NA", the original format of missing data.
+
+Let us check missing values for all columns.
+
+```{r}
+colSums(is.na(data))
+```
+
+Only `bmi` has missing values. Let us delete these observations for now. Later on, we will learn how to impute missing values.
+
+```{r}
+data <- data[!is.na(data$bmi),]
+colSums(is.na(data))
+```
+
+
+```{r}
+dim(data)
+```
+
+Observing the output of `glimpse()`, we see that `stroke`, `hypertension`, and `heart_disease` were coded as numeric variables. This is not ideal because they are actually binary categorical variables. Let us convert them into factor variables.
+
+```{r}
+data <- transform(data, stroke=as.factor(stroke),
+                  hypertension=as.factor(hypertension),
+                  heart_disease=as.factor(heart_disease))
+glimpse(data[,c(4,5,12)]) # Show info about these three columns only
+```
+
+### Question 1 Categorical Variables (25 points)
+General requirement: Use `ggplot2` functions only
+
+#### 1.1 Create a horizontal bar graph for `stroke` (5 points)
+Requirements:
+1. Should be a horizontal bar graph
+2. Add a title "Bar Graph for stroke"
+
+```{r}
+ggplot(data, aes(x = stroke)) +
+  geom_bar() +
+  coord_flip() +
+  ggtitle("Bar Graph for stroke")
+```
+
+#### 1.2 Create a pie graph (using `ggplot2`) for gender (5 points)
+Requirements:
+1. Remove x and y axis labels
+2. Add a title "Pie Chart for gender"
+
+```{r}
+ggplot(data, aes(x = "", fill = gender)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y") +
+  labs(x = NULL, y = NULL, title = "Pie Chart for gender")
+```
+
+#### 1.3 Create a Coxcomb chart for `work_type` (5 points)
+
+```{r}
+ggplot(data, aes(x = work_type, fill = work_type)) +
+  geom_bar() +
+  coord_polar() +
+  ggtitle("Coxcomb Chart for work_type")
+```
+
+#### 1.4 Create a bar graph for `smoking_status` and `stroke` (5 points)
+Requirements:
+
+1. Use the 'dodge' position.
+2. Compare the distribution of `stroke` among different groups of `smoking_status`.
+3. The x-axis label should be "Smoking Status".
+
+```{r}
+ggplot(data, aes(x = smoking_status, fill = stroke)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Smoking Status", title = "Stroke Counts by Smoking Status")
+```
+
+#### 1.5 Creat a bar graph for `work_type` and `stroke` (5 points)
+Requirements:
+1. It should be a stacked bar graph that compares the distribution of work_type for different stroke categories.
+2. The height of each bar should be 1.
+
+```{r}
+ggplot(data, aes(x = stroke, fill = work_type)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion", title = "Distribution of work_type by stroke")
+```
+
+### Question 2 Numeric Variables (25 points)
+#### 2.1 Create a histogram for `age`. (5 points)
+Requirements:
+
+1. Let the bar color be 'steelblue'
+2. Let the boundary color of the bar be 'white'
+3. Use 20 bins
+
+```{r}
+ggplot(data, aes(x = age)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "white") +
+  ggtitle("Histogram for age")
+```
+
+#### 2.2 Create a density plot to compare the distribtion of `age` for different `stroke` groups. (5 points)
+Requirements:
+
+1. Let `alpha=0.5`.
+2. Let `bw=5`.
+
+```{r}
+ggplot(data, aes(x = age, fill = stroke)) +
+  geom_density(alpha = 0.5, bw = 5) +
+  ggtitle("Density of age by stroke")
+```
+
+#### 2.3 Create a side-by-side boxplot for `stroke` and `avg_glucose_level` (5 points)
+Requirements:
+
+1. Should be a horizontal boxplot
+2. Name the x-axis(after flipping the axes) label "Average Glucose Level"
+
+```{r}
+ggplot(data, aes(x = stroke, y = avg_glucose_level)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(y = "Average Glucose Level", title = "Average Glucose Level by stroke")
+```
+
+#### 2.4 Create a scatterplot for `bmi` and `avg_glucose_level` (5 points)
+Requirements:
+
+1. `bmi` should be the x variable.
+2. Let `alpha=0.2`.
+3. Use 'purple` for the points.
+4. Label the y-axis "Average Glucose Level"
+
+```{r}
+ggplot(data, aes(x = bmi, y = avg_glucose_level)) +
+  geom_point(alpha = 0.2, color = "purple") +
+  labs(y = "Average Glucose Level", title = "bmi vs. Average Glucose Level")
+```
+
+#### 2.5 Create a scatterplot for `age` and `bmi` (5 points)
+Requirements:
+
+1. `age` should be the x variable.
+2. Let `alpha=0.2`.
+3. Fit and overlay a linear regression line for each "stroke" group.
+
+```{r}
+ggplot(data, aes(x = age, y = bmi, color = stroke)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  ggtitle("age vs. bmi by stroke group")
+```
